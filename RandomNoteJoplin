@@ -1,0 +1,33 @@
+#!/bin/bash
+
+
+randomwinner () {
+  echo "$1" | pbcopy
+  run_applescript
+}
+
+
+run_applescript () {
+osascript <<END
+  tell application "Joplin" to activate
+  delay 0.5
+  tell application "System Events" to key code 5 using command down
+  delay 0.5
+  tell application "System Events" to key code 9 using command down
+END
+}
+
+
+note=$(/usr/local/bin/python3 /Applications/RandomNoteJoplin.app/Contents/MacOS/getnote.py)
+
+title="RandomNote"
+icon="/Applications/Joplin.app/Contents/Resources/Joplin.icns"
+
+answer=$(/usr/local/bin/alerter -message "${note}" -title "${title}" -contentImage "${icon}" -closeLabel Dismiss -actions Joplin -timeout 60)
+
+case $answer in
+    "Dismiss") echo "randomnote dismissed" ;;
+    "Joplin") randomwinner "$note" ;;
+    **) echo "? --> $answer" ;;
+esac 
+
